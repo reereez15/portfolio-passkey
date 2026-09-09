@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>패스키 등록</title>
+<script src="/vendor/simplewebauthn-browser.js"></script>
+<style>
+  body{font-family:system-ui,sans-serif;max-width:420px;margin:60px auto;padding:0 20px;color:#17241F;}
+  h1{font-size:20px;}
+  input{width:100%;padding:10px;margin:6px 0 16px;box-sizing:border-box;border:1px solid #ccc;border-radius:6px;}
+  button{width:100%;padding:12px;background:#17241F;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;}
+  button:disabled{opacity:0.5;}
+  #msg{margin-top:16px;font-size:13px;white-space:pre-wrap;}
+  a{color:#8C6A1F;}
+</style>
+</head>
+<body>
+  <h1>패스키 등록</h1>
+  <p>비밀번호 없이, 이 기기로 로그인할 수 있는 패스키를 등록합니다.</p>
+
+  <label>아이디</label>
+  <input id="username" placeholder="예: kimjunsik">
+  <label>이 패스키의 이름</label>
+  <input id="deviceName" placeholder="예: 내 노트북 - Windows Hello">
+
+  <button id="registerBtn">패스키 등록하기</button>
+  <div id="msg"></div>
+
+  <p style="margin-top:24px;"><a href="/login.html">이미 등록했다면 로그인 →</a></p>
+
+  <script>
+    const { startRegistration } = SimpleWebAuthnBrowser;
+    const msg = document.getElementById('msg');
+
+    document.getElementById('registerBtn').addEventListener('click', async () => {
+      const username = document.getElementById('username').value.trim();
+      const deviceName = document.getElementById('deviceName').value.trim();
+      if (!username || !deviceName) { msg.textContent = '아이디와 패스키 이름을 모두 입력해주세요.'; return; }
+
+      msg.textContent = '등록 요청 중...';
+      try {
+        const optRes = await fetch('/api/register/options', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, deviceName }),
+        });
+        const optData = await optRes.json();
+        if (!optRes.ok) throw new Error(optData.message || optData.error);
+
+        const attResp = await startRegistration({ optionsJSON: optData.options });
+
+        const verifyRes = await fetch('/api/register/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, deviceName, response: attResp }),
+        });
+        const verifyData = await verifyRes.json();
+        if (!verifyRes.ok || !verifyData.verified) throw new Error(verifyData.message || '등록 실패');
+
+        msg.textContent = '등록 완료! 이제 로그인할 수 있어요.';
+      } catch (err) {
+        if (err.name === 'NotAllowedError') {
+          msg.textContent = '등록이 취소됐습니다. 서버에는 아무것도 저장되지 않았어요.';
+        } else {
+          msg.textContent = '오류: ' + err.message;
+        }
+      }
+    });
+  </script>
+</body>
+</html>

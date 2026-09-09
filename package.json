@@ -1,0 +1,22 @@
+{
+  "name": "portfolio-passkey-backend",
+  "version": "1.0.0",
+  "description": "과제8 — 포트폴리오 소개 페이지에 패스키(WebAuthn)로 잠근 비공개 영역 추가",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "migrate": "node src/migrate.js"
+  },
+  "dependencies": {
+    "@fastify/cookie": "^11.0.0",
+    "@fastify/cors": "^11.0.0",
+    "@fastify/static": "^8.0.0",
+    "@simplewebauthn/server": "^14.0.1",
+    "dotenv": "^16.4.5",
+    "fastify": "^5.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.11.3"
+  }
+}
