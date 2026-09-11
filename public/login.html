@@ -29,9 +29,13 @@
     const msg = document.getElementById('msg');
 
     document.getElementById('loginBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('loginBtn');
+      if (btn.disabled) return;
+
       const username = document.getElementById('username').value.trim();
       if (!username) { msg.textContent = '아이디를 입력해주세요.'; return; }
 
+      btn.disabled = true;
       msg.textContent = '로그인 요청 중...';
       try {
         const optRes = await fetch('/api/login/options', {
@@ -55,6 +59,7 @@
         window.location.href = '/private.html';
       } catch (err) {
         msg.textContent = '오류: ' + err.message;
+        btn.disabled = false;
       }
     });
   </script>

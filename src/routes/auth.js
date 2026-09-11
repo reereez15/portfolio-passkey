@@ -35,18 +35,19 @@ async function saveChallenge(userId, type, challenge) {
   await pool.query('INSERT INTO challenges (user_id, type, challenge) VALUES (?, ?, ?)', [userId, type, challenge]);
 }
 
-/** 저장된 challenge를 "한 번만" 꺼내 쓴다 — 조회 즉시 삭제해서 재사용(replay)을 원천 차단 */
+/** 저장된 challenge를 "한 번만" 꺼내 쓴다 — 조회 즉시 삭제해서 재사용(replay)을 원천 차단
+ * 나이(age) 계산은 DB 서버 자체의 시계(NOW())로 한다 — 앱 서버와 DB가 서로 다른 시간대에
+ * 있어도(예: 로컬 PC는 KST, Aiven은 UTC) 정확하게 동작하도록 하기 위함. */
 async function consumeChallenge(userId, type) {
   const [rows] = await pool.query(
-    'SELECT id, challenge, created_at FROM challenges WHERE user_id = ? AND type = ? ORDER BY id DESC LIMIT 1',
+    'SELECT id, challenge, TIMESTAMPDIFF(SECOND, created_at, NOW()) AS age_seconds FROM challenges WHERE user_id = ? AND type = ? ORDER BY id DESC LIMIT 1',
     [userId, type],
   );
   if (rows.length === 0) return null;
   const row = rows[0];
   await pool.query('DELETE FROM challenges WHERE id = ?', [row.id]);
 
-  const age = Date.now() - new Date(row.created_at).getTime();
-  if (age > CHALLENGE_TTL_MS) return null; // 만료된 challenge는 없는 것으로 취급
+  if (row.age_seconds > CHALLENGE_TTL_MS / 1000) return null; // 만료된 challenge는 없는 것으로 취급
 
   return row.challenge;
 }

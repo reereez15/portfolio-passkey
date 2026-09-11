@@ -33,10 +33,14 @@
     const msg = document.getElementById('msg');
 
     document.getElementById('registerBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('registerBtn');
+      if (btn.disabled) return; // 이미 처리 중이면 무시 (중복 클릭 방지)
+
       const username = document.getElementById('username').value.trim();
       const deviceName = document.getElementById('deviceName').value.trim();
       if (!username || !deviceName) { msg.textContent = '아이디와 패스키 이름을 모두 입력해주세요.'; return; }
 
+      btn.disabled = true;
       msg.textContent = '등록 요청 중...';
       try {
         const optRes = await fetch('/api/register/options', {
@@ -64,6 +68,8 @@
         } else {
           msg.textContent = '오류: ' + err.message;
         }
+      } finally {
+        btn.disabled = false;
       }
     });
   </script>
