@@ -1,0 +1,22 @@
+=== E2E 자동 테스트 결과 (Puppeteer + Chrome DevTools Protocol 가상 인증기 사용) ===
+실행 시각: 2026-09-08
+테스트 스크립트: e2e-test.cjs
+
+PASS — 로그인 없이 /private.html 접속 시 콘텐츠 텍스트 없음
+PASS — 로그인 없이 비공개 API 호출 시 401 :: {"url":"http://localhost:3000/api/whoami","status":401}
+PASS — userA 패스키 등록 성공 :: 등록 완료! 이제 로그인할 수 있어요.
+PASS — 등록 verify 응답 200
+PASS — 로그인 성공 후 private.html로 리다이렉트 :: http://localhost:3000/private.html
+PASS — 로그인 후 whoami에 userA 표시 :: kimjunsik(으)로 로그인됨
+PASS — 로그인 후 콘텐츠(게임 기획 아이디어) 표시됨
+PASS — userA 두 번째 패스키(기기2) 등록 성공 :: 등록 완료! 이제 로그인할 수 있어요.
+PASS — 패스키 목록에 2개 표시
+PASS — 패스키 하나 삭제 후 목록에 1개만 남음
+PASS — 삭제된 패스키를 제외하고 남은 패스키(기기2)로 로그인 성공
+PASS — 로그아웃 후 다시 접속 시 401 (재로그인 필요)
+PASS — userB 패스키 등록 성공
+PASS — userB 로그인 후 private.html에 있음
+PASS — userB는 자기 콘텐츠(보드게임)만 보임
+PASS — userB 화면에 userA의 콘텐츠(로그라이크)는 안 보임
+
+=== 결과: 16 PASS / 0 FAIL ===
