@@ -94,6 +94,8 @@ export default async function authRoutes(fastify) {
 
     await saveChallenge(user.id, 'register', options.challenge);
 
+    
+
     // 클라이언트가 verify 단계에서 다시 보낼 수 있게 임시로 함께 내려줌 (deviceName)
     reply.send({ options, deviceName });
   });
@@ -124,6 +126,7 @@ export default async function authRoutes(fastify) {
         expectedChallenge,
         expectedOrigin: ORIGIN,
         expectedRPID: RP_ID,
+        requireUserVerification: false,
       });
     } catch (err) {
       request.log.error(err);
@@ -221,6 +224,7 @@ export default async function authRoutes(fastify) {
           counter: cred.counter,
           transports: cred.transports ? cred.transports.split(',') : undefined,
         },
+        requireUserVerification: false,
       });
     } catch (err) {
       request.log.error(err);
